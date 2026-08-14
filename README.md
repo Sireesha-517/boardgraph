@@ -2,8 +2,8 @@
 
 **BoardGraph** is a board-game discovery engine — a "corkboard" you can pull red string across to see how games, designers, mechanics and players connect. It's backed entirely by **CognoDB**, a managed graph database, over the Bolt protocol using the official Neo4j JavaScript driver.
 
-Live demo: **`<add your hosted URL here after deploying — see "Deploying" below>`**
-Screen recording: **`<add a link to your screen recording here>`**
+Live demo: **`<https://boardgraph.onrender.com/>`**
+Screen recording: **`<https://drive.google.com/file/d/13dc91s0hoKCp9NRgsH59N7tn0cQiFVyX/view?usp=drive_link>`**
 
 ---
 
