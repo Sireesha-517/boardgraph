@@ -9,16 +9,27 @@ const cardTemplate = $("#game-card-template");
 
 // ---------------------------------------------------------------------------
 // Tiny fetch helper with a consistent "is the database reachable" story.
+// Free hosting tiers (e.g. Render's free plan) spin the server down after
+// inactivity, so the very first request or two after a cold start can fail
+// even though the server is fine seconds later. Retrying a couple of times
+// with a short backoff smooths that over instead of leaving the page empty.
 // ---------------------------------------------------------------------------
-async function api(path) {
-  const res = await fetch(`/api${path}`);
-  if (res.status === 503) {
-    showDbBanner();
-    throw new Error("Database unreachable");
+async function api(path, { retries = 2, retryDelayMs = 1200 } = {}) {
+  for (let attempt = 0; ; attempt++) {
+    try {
+      const res = await fetch(`/api${path}`);
+      if (res.status === 503) {
+        showDbBanner();
+        throw new Error("Database unreachable");
+      }
+      if (!res.ok) throw new Error(`Request failed: ${res.status}`);
+      hideDbBanner();
+      return await res.json();
+    } catch (err) {
+      if (attempt >= retries) throw err;
+      await new Promise((r) => setTimeout(r, retryDelayMs));
+    }
   }
-  hideDbBanner();
-  if (!res.ok) throw new Error(`Request failed: ${res.status}`);
-  return res.json();
 }
 
 let bannerTimer = null;
