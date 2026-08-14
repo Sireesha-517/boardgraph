@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>BoardGraph — find your next favourite game</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=IBM+Plex+Mono:wght@500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+
+  <div id="db-banner" class="db-banner" hidden>
+    <span class="pin pin--small" aria-hidden="true"></span>
+    The graph database is unreachable right now. Retrying…
+  </div>
+
+  <header class="board-header">
+    <div class="board-header__inner">
+      <div class="masthead">
+        <span class="masthead__pin" aria-hidden="true"></span>
+        <h1 class="masthead__title">BoardGraph<span class="masthead__caret">_</span></h1>
+        <p class="masthead__tag">a corkboard for tracing how tabletop games, designers &amp; mechanics connect</p>
+      </div>
+      <dl class="stat-strip" id="stat-strip" aria-label="Dataset size">
+        <div class="stat-strip__item"><dt>games</dt><dd id="stat-games">—</dd></div>
+        <div class="stat-strip__item"><dt>designers</dt><dd id="stat-designers">—</dd></div>
+        <div class="stat-strip__item"><dt>mechanics</dt><dd id="stat-mechanics">—</dd></div>
+        <div class="stat-strip__item"><dt>ratings</dt><dd id="stat-ratings">—</dd></div>
+      </dl>
+    </div>
+    <nav class="tabs" role="tablist" aria-label="Views">
+      <button class="tab is-active" data-view="browse" role="tab" aria-selected="true">📌 Browse</button>
+      <button class="tab" data-view="recommend" role="tab" aria-selected="false">🎯 Recommendations</button>
+      <button class="tab" data-view="path" role="tab" aria-selected="false">🧵 Path Finder</button>
+    </nav>
+  </header>
+
+  <main id="app" class="board">
+
+    <!-- BROWSE VIEW -->
+    <section id="view-browse" class="view is-active" aria-labelledby="tab-browse">
+      <div class="toolbar">
+        <input id="search-input" class="toolbar__search" type="search" placeholder="Search the board by title…" autocomplete="off" />
+        <select id="category-filter" class="toolbar__select"><option value="">All categories</option></select>
+        <select id="mechanic-filter" class="toolbar__select"><option value="">All mechanics</option></select>
+      </div>
+      <div id="games-grid" class="pinboard" aria-live="polite"></div>
+      <p id="games-empty" class="empty-state" hidden>No pins match that search. Try a different title or clear the filters.</p>
+    </section>
+
+    <!-- GAME DETAIL (modal-like panel over the browse view) -->
+    <section id="view-detail" class="view detail-view" hidden>
+      <button id="detail-back" class="back-link">&larr; back to the board</button>
+      <div id="detail-content" class="detail-content"></div>
+      <h3 class="section-label">Games like this <span class="section-label__hint">(shares mechanics &amp; categories — 2-hop traversal)</span></h3>
+      <div id="similar-grid" class="pinboard pinboard--tight"></div>
+    </section>
+
+    <!-- RECOMMENDATIONS VIEW -->
+    <section id="view-recommend" class="view" hidden aria-labelledby="tab-recommend">
+      <p class="view-intro">Pick a player from the demo roster. Recommendations trace a 3-hop path — <em>player → highly-rated game → shared mechanic → candidate game</em> — weighted by rating and how many mechanics line up.</p>
+      <div class="player-picker" id="player-picker" aria-label="Choose a player"></div>
+      <div id="recommend-results" class="recommend-layout" hidden>
+        <div class="recommend-layout__ratings">
+          <h3 class="section-label">Their top ratings</h3>
+          <ul id="player-ratings" class="rating-list"></ul>
+        </div>
+        <div class="recommend-layout__recs">
+          <h3 class="section-label">Recommended for them</h3>
+          <div id="recommend-grid" class="pinboard pinboard--tight"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PATH FINDER VIEW -->
+    <section id="view-path" class="view" hidden aria-labelledby="tab-path">
+      <p class="view-intro">Pick two designers. BoardGraph pulls a piece of red string along the shortest chain of shared games connecting them — a variable-length graph traversal that's awkward to express as SQL joins.</p>
+      <form id="path-form" class="path-form">
+        <select id="path-from" class="toolbar__select" required></select>
+        <span class="path-form__arrow">🧵</span>
+        <select id="path-to" class="toolbar__select" required></select>
+        <button type="submit" class="btn">Trace the string</button>
+      </form>
+      <div id="path-result" class="path-result" aria-live="polite"></div>
+    </section>
+
+  </main>
+
+  <footer class="board-footer">
+    <p>BoardGraph · a CognoDB (openCypher / Bolt) demo application</p>
+  </footer>
+
+  <template id="game-card-template">
+    <article class="pin-card">
+      <span class="pin" aria-hidden="true"></span>
+      <h3 class="pin-card__title"></h3>
+      <p class="pin-card__meta"></p>
+      <p class="pin-card__desc"></p>
+      <div class="pin-card__tags"></div>
+    </article>
+  </template>
+
+  <script src="/js/app.js" defer></script>
+</body>
+</html>
